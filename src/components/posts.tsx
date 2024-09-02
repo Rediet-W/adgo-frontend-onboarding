@@ -27,17 +27,12 @@ const post = async (newpost: PostData): Promise<PostData> => {
 const PostForm: React.FC = () => {
   const [title, setTitle] = useState<string>("");
   const [body, setBody] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // State to track error messages
 
   const {
     mutateAsync: addPostMutation,
     status,
-    isError,
     error,
   } = useMutation({
-    onError: (error) => {
-      setErrorMessage(error.message); // Set error message on error
-    },
     mutationFn: post,
   });
 
@@ -49,18 +44,11 @@ const PostForm: React.FC = () => {
   }, [status]);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // console.log("submitting");
-    // console.log("iserror", isError);
 
-    if (isError) {
-      console.log(error);
-      setErrorMessage(error.message);
-    }
     try {
-      setErrorMessage(null);
       await addPostMutation({ title, body });
     } catch (error: any) {
-      setErrorMessage(error.message);
+      console.log(error.message);
     }
   };
 
@@ -94,8 +82,10 @@ const PostForm: React.FC = () => {
           />
         </div>
 
-        {errorMessage && (
-          <p className="text-red-600 mt-2">Error: {errorMessage}</p>
+        {status == "error" ? (
+          <p className="text-red-700"> {error.message}</p>
+        ) : (
+          ""
         )}
 
         <button
